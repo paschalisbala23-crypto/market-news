@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0e2418; --panel:#143222; --ink:#f1ead8; --muted:#a9b8a6; --line:#27483a; --accent:#a8d5ae; --tag:#1d4030;
+  --bg:#050309; --panel:#0a0614; --ink:#f0eafa; --muted:#a396bd; --line:#180f27; --accent:#b99cff; --tag:#120a20;
   --ui:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
 }
@@ -21,6 +21,7 @@ a{color:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
 header{position:sticky;top:0;z-index:5;background:var(--panel);border-bottom:1px solid var(--line)}
+header .search input::placeholder{color:var(--muted)}
 .bar{max-width:1100px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:20px}
 .brand{font:600 22px/1 var(--serif);letter-spacing:-.01em;white-space:nowrap}
 .search{flex:1;max-width:420px;margin-left:auto}
