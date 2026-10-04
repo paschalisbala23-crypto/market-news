@@ -17,8 +17,8 @@ import feedparser
 socket.setdefaulttimeout(20)
 
 OUTPUT = Path("articles.json")
-KEEP_DAYS = 7
-MAX_ARTICLES = 1500
+KEEP_DAYS = 14
+MAX_ARTICLES = 3000
 
 # ---------------------------------------------------------------------------
 # YOUR SOURCES. To add one, copy a line and change it.
@@ -41,6 +41,21 @@ FEEDS = [
     {"name": "Cointelegraph", "url": "https://cointelegraph.com/rss", "category": "crypto", "finance_only": True},
     {"name": "Federal Reserve", "url": "https://www.federalreserve.gov/feeds/press_all.xml", "category": "macro", "finance_only": True},
     {"name": "ECB", "url": "https://www.ecb.europa.eu/rss/press.html", "category": "macro", "finance_only": True},
+    # --- more sources ---
+    {"name": "CNBC Investing", "url": "https://www.cnbc.com/id/15839069/device/rss/rss.html", "category": "stocks", "finance_only": True},
+    {"name": "CNBC Earnings", "url": "https://www.cnbc.com/id/15839135/device/rss/rss.html", "category": "stocks", "finance_only": True},
+    {"name": "MarketWatch Realtime", "url": "https://feeds.content.dowjones.io/public/rss/mw_realtimeheadlines", "category": "markets", "finance_only": True},
+    {"name": "WSJ Markets", "url": "https://feeds.content.dowjones.io/public/rss/RSSMarketsMain", "category": "markets", "finance_only": True},
+    {"name": "Seeking Alpha", "url": "https://seekingalpha.com/market_currents.xml", "category": "stocks", "finance_only": True},
+    {"name": "Benzinga", "url": "https://www.benzinga.com/feed", "category": "stocks", "finance_only": True},
+    {"name": "Investing.com Forex", "url": "https://www.investing.com/rss/news_1.rss", "category": "forex", "finance_only": True},
+    {"name": "Investing.com Stocks", "url": "https://www.investing.com/rss/news_25.rss", "category": "stocks", "finance_only": True},
+    {"name": "Investing.com Commodities", "url": "https://www.investing.com/rss/news_11.rss", "category": "futures", "finance_only": True},
+    {"name": "Decrypt", "url": "https://decrypt.co/feed", "category": "crypto", "finance_only": True},
+    {"name": "The Block", "url": "https://www.theblock.co/rss.xml", "category": "crypto", "finance_only": True},
+    {"name": "Bitcoin Magazine", "url": "https://bitcoinmagazine.com/.rss/full/", "category": "crypto", "finance_only": True},
+    {"name": "BBC Business", "url": "https://feeds.bbci.co.uk/news/business/rss.xml", "category": "markets", "finance_only": False},
+    {"name": "Bank of England", "url": "https://www.bankofengland.co.uk/rss/news", "category": "macro", "finance_only": True},
 ]
 
 # Keywords used to tag articles. An article can get several tags.
