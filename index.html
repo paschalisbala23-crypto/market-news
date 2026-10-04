@@ -79,8 +79,8 @@ h2.day:first-child{margin-top:0}
 
 <script>
 const CATS = [
-  ["all","All markets"],["forex","Forex"],["stocks","Stocks"],["crypto","Crypto"],["etf","ETFs"],
-  ["options","Options"],["futures","Futures & commodities"],["bonds","Bonds"],["indices","Indices"],
+  ["all","All markets"],["forex","Forex"],["stocks","Stocks"],["crypto","Crypto"],
+  ["futures","Futures & commodities"],["bonds","Bonds"],["indices","Indices"],
   ["macro","Macro & central banks"]
 ];
 const LABEL = Object.fromEntries(CATS);
@@ -120,10 +120,9 @@ function renderNav(){
   const nav = $("nav");
   nav.textContent = "";
   CATS.forEach(([key, name]) => {
-    const count = key === "all" ? all.length : all.filter(a => a.categories.includes(key)).length;
     const b = el("button");
     b.setAttribute("aria-pressed", key === cat);
-    b.append(el("span", "", name), el("span", "n", count));
+    b.append(el("span", "", name));
     b.onclick = () => { cat = key; shown = PAGE; render(); };
     nav.append(b);
   });
