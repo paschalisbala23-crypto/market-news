@@ -85,6 +85,7 @@ const CATS = [
 ];
 const LABEL = Object.fromEntries(CATS);
 const PAGE = 60;
+const DATA_URL = "https://raw.githubusercontent.com/paschalisbala23-crypto/market-news/data/articles.json";
 let all = [], cat = "all", query = "", shown = PAGE, updated = null;
 
 const $ = id => document.getElementById(id);
@@ -180,8 +181,14 @@ function renderStamp(){
 
 async function load(){
   try {
-    const res = await fetch("articles.json?t=" + Date.now());
-    if (!res.ok) throw new Error(res.status);
+    let res;
+    try {
+      res = await fetch(DATA_URL + "?t=" + Date.now());
+      if (!res.ok) throw new Error(res.status);
+    } catch (e) {
+      res = await fetch("articles.json?t=" + Date.now());
+      if (!res.ok) throw new Error(res.status);
+    }
     const data = await res.json();
     all = data.articles || [];
     updated = new Date(data.updated);
