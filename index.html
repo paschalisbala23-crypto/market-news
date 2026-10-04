@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Market News</title>
+<title>AGORA NEWS - Global markets</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&family=Marcellus&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#050309; --panel:#0a0614; --ink:#f0eafa; --muted:#a396bd; --line:#180f27; --accent:#b99cff; --tag:#120a20;
@@ -23,7 +23,7 @@ a{color:inherit}
 header{position:sticky;top:0;z-index:5;background:var(--panel);border-bottom:1px solid var(--line)}
 header .search input::placeholder{color:var(--muted)}
 .bar{max-width:1100px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:20px}
-.brand{font:600 22px/1 var(--serif);letter-spacing:-.01em;white-space:nowrap}
+.brand{font:400 32px/1 "Marcellus",Georgia,"Times New Roman",serif;letter-spacing:.08em;white-space:nowrap;-webkit-text-stroke:.8px currentColor}
 .search{flex:1;max-width:420px;margin-left:auto}
 .search input{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font:inherit}
 .stamp{font-size:13px;color:var(--muted);white-space:nowrap}
@@ -51,6 +51,7 @@ h2.day:first-child{margin-top:0}
 
 @media (max-width:760px){
   .bar{flex-wrap:wrap;gap:10px}
+  .brand{font-size:24px}
   .search{order:3;max-width:none;flex-basis:100%;margin:0}
   .stamp{margin-left:auto}
   .wrap{grid-template-columns:1fr;gap:16px;padding-top:16px}
@@ -65,7 +66,7 @@ h2.day:first-child{margin-top:0}
 <body>
 <header>
   <div class="bar">
-    <div class="brand">Market News</div>
+    <div class="brand">AGORA NEWS</div>
     <div class="search"><input id="q" type="search" placeholder="Search headlines, tickers, sources" aria-label="Search news"></div>
     <div class="stamp" id="stamp"></div>
   </div>
