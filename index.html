@@ -30,6 +30,17 @@ header .search input::placeholder{color:var(--muted)}
 
 .ticker{background:var(--panel);border-bottom:1px solid var(--line);color-scheme:light;min-height:38px;overflow:hidden}
 .ticker .tradingview-widget-container{zoom:.8}
+
+.sessions{max-width:1100px;margin:0 auto;padding:16px 20px 0;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.sess{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:9px 12px}
+.sess .top{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;letter-spacing:.07em;text-transform:uppercase}
+.sess .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);opacity:.6;flex:none}
+.sess .clock{margin-left:auto;font-weight:400;font-variant-numeric:tabular-nums;color:var(--muted);letter-spacing:0}
+.sess .note{margin-top:2px;font-size:12px;color:var(--muted)}
+.sess.open{border-color:#2c5a46}
+.sess.open .dot{background:#5fd38d;opacity:1;box-shadow:0 0 0 3px rgba(95,211,141,.2)}
+.sess.open .note{color:#8fdcaa}
+@media (max-width:760px){.sessions{grid-template-columns:repeat(2,1fr);padding-top:12px}}
 .ticker .tradingview-widget-copyright{font-size:10px;text-align:center;padding:0 0 2px;line-height:1.2}
 .ticker .tradingview-widget-copyright a{color:var(--muted);text-decoration:none}
 .wrap{max-width:1100px;margin:0 auto;padding:24px 20px 60px;display:grid;grid-template-columns:210px 1fr;gap:32px}
@@ -105,6 +116,8 @@ h2.day:first-child{margin-top:0}
     <div class="stamp" id="stamp"></div>
   </div>
 </header>
+
+<section class="sessions" id="sessions" aria-label="Market sessions" title="Typical forex session hours in each city's local time. Public holidays are not included."></section>
 
 <div class="wrap">
   <nav id="nav" aria-label="Markets"></nav>
@@ -235,6 +248,65 @@ async function load(){
     }
   }
 }
+
+/* ---- Market sessions clock (typical forex hours, local time, Mon-Fri) ---- */
+const SESSIONS = [
+  {name: "Sydney",   tz: "Australia/Sydney", open: 7, close: 16},
+  {name: "Tokyo",    tz: "Asia/Tokyo",       open: 9, close: 18},
+  {name: "London",   tz: "Europe/London",    open: 8, close: 17},
+  {name: "New York", tz: "America/New_York", open: 8, close: 17}
+];
+const WEEKDAY = {Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6};
+
+function localParts(tz){
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: tz, weekday: "short", hour: "2-digit", minute: "2-digit", hourCycle: "h23"
+  }).formatToParts(new Date());
+  const get = type => parts.find(p => p.type === type).value;
+  return {wd: WEEKDAY[get("weekday")], h: +get("hour"), m: +get("minute")};
+}
+
+function span(mins){
+  const h = Math.floor(mins / 60), m = mins % 60;
+  if (h >= 24) return Math.floor(h / 24) + "d " + (h % 24) + "h";
+  return (h ? h + "h " : "") + m + "m";
+}
+
+function sessionState(s){
+  const {wd, h, m} = localParts(s.tz);
+  const now = h * 60 + m, open = s.open * 60, close = s.close * 60;
+  const clock = String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0");
+  const weekday = wd >= 1 && wd <= 5;
+
+  if (weekday && now >= open && now < close){
+    return {isOpen: true, clock, text: "Open \u00b7 closes in " + span(close - now)};
+  }
+  let mins = 0;
+  for (let d = 0; d <= 7; d++){
+    const day = (wd + d) % 7;
+    if (day < 1 || day > 5) continue;
+    if (d === 0 && now >= open) continue;
+    mins = d === 0 ? open - now : d * 1440 - now + open;
+    break;
+  }
+  return {isOpen: false, clock, text: "Closed \u00b7 opens in " + span(mins)};
+}
+
+function renderSessions(){
+  const box = $("sessions");
+  box.textContent = "";
+  SESSIONS.forEach(s => {
+    const st = sessionState(s);
+    const card = el("div", "sess" + (st.isOpen ? " open" : ""));
+    const top = el("div", "top");
+    top.append(el("span", "dot"), el("span", "", s.name), el("span", "clock", st.clock));
+    card.append(top, el("div", "note", st.text));
+    box.append(card);
+  });
+}
+
+renderSessions();
+setInterval(renderSessions, 30 * 1000);
 
 $("q").addEventListener("input", e => { query = e.target.value.trim().toLowerCase(); shown = PAGE; renderFeed(); });
 
