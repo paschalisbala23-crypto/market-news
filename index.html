@@ -124,7 +124,6 @@ h2.day:first-child{margin-top:0}
       "locale": "en"
     }
     </script>
-    <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank">Track all markets on TradingView</a></div>
   </div>
 </div>
 
@@ -368,14 +367,7 @@ function loadCalendar(){
   });
   holder.append(s);
 
-  const credit = el("div", "tradingview-widget-copyright");
-  const link = el("a", "", "Track all markets on TradingView");
-  link.href = "https://www.tradingview.com/";
-  link.target = "_blank";
-  link.rel = "noopener nofollow";
-  credit.append(link);
-
-  box.append(holder, credit);
+  box.append(holder);
 }
 
 /* ---- Crypto Fear & Greed gauge (data: alternative.me) ---- */
