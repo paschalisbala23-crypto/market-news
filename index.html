@@ -28,6 +28,9 @@ header .search input::placeholder{color:var(--muted)}
 .search input{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font:inherit}
 .stamp{font-size:13px;color:var(--muted);white-space:nowrap;justify-self:end}
 
+.ticker{background:var(--panel);border-bottom:1px solid var(--line);min-height:46px}
+.ticker .tradingview-widget-copyright{font-size:10px;text-align:center;padding:0 0 2px;line-height:1.2}
+.ticker .tradingview-widget-copyright a{color:var(--muted);text-decoration:none}
 .wrap{max-width:1100px;margin:0 auto;padding:24px 20px 60px;display:grid;grid-template-columns:210px 1fr;gap:32px}
 nav{position:sticky;top:78px;align-self:start}
 nav button{display:flex;justify-content:space-between;width:100%;text-align:left;padding:8px 10px;margin:0 0 2px;border:0;border-left:3px solid transparent;background:none;color:var(--muted);font:inherit;cursor:pointer}
@@ -64,6 +67,36 @@ h2.day:first-child{margin-top:0}
 </style>
 </head>
 <body>
+<div class="ticker" aria-label="Live market prices">
+  <div class="tradingview-widget-container">
+    <div class="tradingview-widget-container__widget"></div>
+    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+    {
+      "symbols": [
+        {"proName": "FOREXCOM:SPXUSD", "title": "S&P 500"},
+        {"proName": "FOREXCOM:NSXUSD", "title": "Nasdaq 100"},
+        {"proName": "FOREXCOM:DJI", "title": "Dow Jones"},
+        {"proName": "TVC:DAX", "title": "DAX"},
+        {"proName": "TVC:DXY", "title": "US Dollar Index"},
+        {"proName": "FX:EURUSD", "title": "EUR/USD"},
+        {"proName": "FX:GBPUSD", "title": "GBP/USD"},
+        {"proName": "FX:USDJPY", "title": "USD/JPY"},
+        {"proName": "BITSTAMP:BTCUSD", "title": "Bitcoin"},
+        {"proName": "BITSTAMP:ETHUSD", "title": "Ethereum"},
+        {"proName": "OANDA:XAUUSD", "title": "Gold"},
+        {"proName": "TVC:USOIL", "title": "Crude Oil"}
+      ],
+      "showSymbolLogo": false,
+      "colorTheme": "dark",
+      "isTransparent": true,
+      "displayMode": "adaptive",
+      "locale": "en"
+    }
+    </script>
+    <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank">Track all markets on TradingView</a></div>
+  </div>
+</div>
+
 <header>
   <div class="bar">
     <div class="brand">AGORA NEWS</div>
