@@ -42,6 +42,14 @@ header .search input::placeholder{color:var(--muted)}
 .sess.open .note{color:#8fdcaa}
 @media (max-width:760px){.sessions{grid-template-columns:repeat(2,1fr);padding-top:12px}}
 
+.views{display:flex;gap:4px;margin:0 0 18px;border-bottom:1px solid var(--line)}
+.views button{padding:9px 14px;margin-bottom:-1px;border:0;border-bottom:2px solid transparent;background:none;color:var(--muted);font:inherit;cursor:pointer}
+.views button:hover{color:var(--ink)}
+.views button[aria-pressed="true"]{color:var(--ink);font-weight:600;border-bottom-color:var(--accent)}
+.cal{color-scheme:light}
+.cal .tradingview-widget-copyright{font-size:11px;text-align:center;padding-top:6px}
+.cal .tradingview-widget-copyright a{color:var(--muted);text-decoration:none}
+
 .fng{margin-top:18px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px 14px 10px;text-align:center;font-size:13px;color:var(--muted)}
 .fng h4{margin:0 0 6px;font:600 12px/1.2 var(--ui);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
 .fng .gauge{color:var(--ink)}
@@ -135,7 +143,14 @@ h2.day:first-child{margin-top:0}
     <nav id="nav" aria-label="Markets"></nav>
     <div class="fng" id="fng" aria-live="polite">Loading gauge...</div>
   </div>
-  <main id="feed" aria-live="polite"><div class="msg">Loading news...</div></main>
+  <div class="content">
+    <div class="views">
+      <button id="tabNews" type="button" aria-pressed="true">News</button>
+      <button id="tabCal" type="button" aria-pressed="false">Economic calendar</button>
+    </div>
+    <main id="feed" aria-live="polite"><div class="msg">Loading news...</div></main>
+    <section id="cal" class="cal" hidden aria-label="Economic calendar"></section>
+  </div>
 </div>
 
 <script>
@@ -185,7 +200,7 @@ function renderNav(){
     const b = el("button");
     b.setAttribute("aria-pressed", key === cat);
     b.append(el("span", "", name));
-    b.onclick = () => { cat = key; shown = PAGE; render(); };
+    b.onclick = () => { cat = key; shown = PAGE; showView("news"); render(); };
     nav.append(b);
   });
 }
@@ -322,6 +337,47 @@ function renderSessions(){
 renderSessions();
 setInterval(renderSessions, 30 * 1000);
 
+/* ---- Tabs: News / Economic calendar ---- */
+let calLoaded = false;
+
+function showView(v){
+  $("tabNews").setAttribute("aria-pressed", v === "news");
+  $("tabCal").setAttribute("aria-pressed", v === "cal");
+  $("feed").hidden = v !== "news";
+  $("cal").hidden = v !== "cal";
+  if (v === "cal" && !calLoaded) loadCalendar();
+}
+
+function loadCalendar(){
+  calLoaded = true;
+  const box = $("cal");
+  const holder = el("div", "tradingview-widget-container");
+  holder.append(el("div", "tradingview-widget-container__widget"));
+
+  const s = document.createElement("script");
+  s.src = "https://s3.tradingview.com/external-embedding/embed-widget-events.js";
+  s.async = true;
+  s.text = JSON.stringify({
+    width: "100%",
+    height: 640,
+    colorTheme: "dark",
+    isTransparent: true,
+    locale: "en",
+    importanceFilter: "0,1",
+    countryFilter: "us,eu,gb,jp,de,fr,ch,au,ca,cn"
+  });
+  holder.append(s);
+
+  const credit = el("div", "tradingview-widget-copyright");
+  const link = el("a", "", "Track all markets on TradingView");
+  link.href = "https://www.tradingview.com/";
+  link.target = "_blank";
+  link.rel = "noopener nofollow";
+  credit.append(link);
+
+  box.append(holder, credit);
+}
+
 /* ---- Crypto Fear & Greed gauge (data: alternative.me) ---- */
 const FNG_URL = "https://api.alternative.me/fng/?limit=8";
 const FNG_BANDS = [[0, 25, "#e5534b"], [25, 45, "#e8913a"], [45, 55, "#e3c04a"], [55, 75, "#8fd16a"], [75, 100, "#3fbf72"]];
@@ -378,7 +434,9 @@ async function loadFng(){
 loadFng();
 setInterval(loadFng, 30 * 60 * 1000);
 
-$("q").addEventListener("input", e => { query = e.target.value.trim().toLowerCase(); shown = PAGE; renderFeed(); });
+$("q").addEventListener("input", e => { query = e.target.value.trim().toLowerCase(); shown = PAGE; showView("news"); renderFeed(); });
+$("tabNews").onclick = () => showView("news");
+$("tabCal").onclick = () => showView("cal");
 
 load();
 setInterval(load, 5 * 60 * 1000);
