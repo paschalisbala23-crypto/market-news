@@ -41,10 +41,20 @@ header .search input::placeholder{color:var(--muted)}
 .sess.open .dot{background:#5fd38d;opacity:1;box-shadow:0 0 0 3px rgba(95,211,141,.2)}
 .sess.open .note{color:#8fdcaa}
 @media (max-width:760px){.sessions{grid-template-columns:repeat(2,1fr);padding-top:12px}}
+
+.fng{margin-top:18px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px 14px 10px;text-align:center;font-size:13px;color:var(--muted)}
+.fng h4{margin:0 0 6px;font:600 12px/1.2 var(--ui);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.fng .gauge{color:var(--ink)}
+.fng svg{display:block;width:100%;max-width:190px;margin:0 auto}
+.fng .val{margin-top:-6px;font:600 32px/1 var(--serif);color:var(--ink)}
+.fng .lab{margin-top:4px;font-weight:600;font-size:14px;color:var(--ink)}
+.fng .hist{display:flex;justify-content:space-between;gap:8px;margin-top:10px;font-size:12px}
+.fng .src{margin-top:8px;font-size:11px}
+.fng .src a{color:var(--muted)}
 .ticker .tradingview-widget-copyright{font-size:10px;text-align:center;padding:0 0 2px;line-height:1.2}
 .ticker .tradingview-widget-copyright a{color:var(--muted);text-decoration:none}
 .wrap{max-width:1100px;margin:0 auto;padding:24px 20px 60px;display:grid;grid-template-columns:210px 1fr;gap:32px}
-nav{position:sticky;top:78px;align-self:start}
+.side{position:sticky;top:78px;align-self:start}
 nav button{display:flex;justify-content:space-between;width:100%;text-align:left;padding:8px 10px;margin:0 0 2px;border:0;border-left:3px solid transparent;background:none;color:var(--muted);font:inherit;cursor:pointer}
 nav button:hover{color:var(--ink)}
 nav button[aria-pressed="true"]{color:var(--ink);font-weight:600;border-left-color:var(--accent);background:var(--panel)}
@@ -70,7 +80,8 @@ h2.day:first-child{margin-top:0}
   .search{order:3;max-width:none;flex-basis:100%;margin:0}
   .stamp{margin-left:auto}
   .wrap{grid-template-columns:1fr;gap:16px;padding-top:16px}
-  nav{position:static;display:flex;overflow-x:auto;gap:6px;padding-bottom:4px}
+  .side{position:static}
+  nav{display:flex;overflow-x:auto;gap:6px;padding-bottom:4px}
   nav button{width:auto;white-space:nowrap;border:1px solid var(--line);border-radius:16px;margin:0;gap:8px}
   nav button[aria-pressed="true"]{border-color:var(--accent)}
   .item{grid-template-columns:1fr;gap:2px}
@@ -120,7 +131,10 @@ h2.day:first-child{margin-top:0}
 <section class="sessions" id="sessions" aria-label="Market sessions" title="Typical forex session hours in each city's local time. Public holidays are not included."></section>
 
 <div class="wrap">
-  <nav id="nav" aria-label="Markets"></nav>
+  <div class="side">
+    <nav id="nav" aria-label="Markets"></nav>
+    <div class="fng" id="fng" aria-live="polite">Loading gauge...</div>
+  </div>
   <main id="feed" aria-live="polite"><div class="msg">Loading news...</div></main>
 </div>
 
@@ -307,6 +321,62 @@ function renderSessions(){
 
 renderSessions();
 setInterval(renderSessions, 30 * 1000);
+
+/* ---- Crypto Fear & Greed gauge (data: alternative.me) ---- */
+const FNG_URL = "https://api.alternative.me/fng/?limit=8";
+const FNG_BANDS = [[0, 25, "#e5534b"], [25, 45, "#e8913a"], [45, 55, "#e3c04a"], [55, 75, "#8fd16a"], [75, 100, "#3fbf72"]];
+
+function fngPoint(v, r){
+  const a = Math.PI * (1 - v / 100);
+  return [100 + r * Math.cos(a), 100 - r * Math.sin(a)];
+}
+
+function fngSvg(value){
+  const arcs = FNG_BANDS.map(([from, to, color]) => {
+    const [x1, y1] = fngPoint(from, 80), [x2, y2] = fngPoint(to, 80);
+    return '<path d="M' + x1.toFixed(1) + " " + y1.toFixed(1) + " A80 80 0 0 1 " + x2.toFixed(1) + " " + y2.toFixed(1) +
+           '" stroke="' + color + '" stroke-width="14" fill="none"/>';
+  }).join("");
+  const [nx, ny] = fngPoint(value, 64);
+  return '<svg viewBox="0 0 200 112" role="img" aria-label="Fear and greed gauge showing ' + value + ' out of 100">' + arcs +
+         '<line x1="100" y1="100" x2="' + nx.toFixed(1) + '" y2="' + ny.toFixed(1) + '" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>' +
+         '<circle cx="100" cy="100" r="6" fill="currentColor"/></svg>';
+}
+
+async function loadFng(){
+  const box = $("fng");
+  try {
+    const res = await fetch(FNG_URL);
+    if (!res.ok) throw new Error(res.status);
+    const rows = (await res.json()).data || [];
+    const now = Number(rows[0].value);
+    if (!isFinite(now) || now < 0 || now > 100) throw new Error("bad data");
+
+    box.textContent = "";
+    box.append(el("h4", "", "Crypto Fear & Greed"));
+    const gauge = el("div", "gauge");
+    gauge.insertAdjacentHTML("beforeend", fngSvg(now));
+    box.append(gauge, el("div", "val", String(now)), el("div", "lab", rows[0].value_classification || ""));
+
+    const hist = el("div", "hist");
+    if (rows[1]) hist.append(el("span", "", "Yesterday " + rows[1].value));
+    if (rows[7]) hist.append(el("span", "", "Last week " + rows[7].value));
+    box.append(hist);
+
+    const src = el("div", "src");
+    const link = el("a", "", "Source: alternative.me");
+    link.href = "https://alternative.me/crypto/fear-and-greed-index/";
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    src.append(link);
+    box.append(src);
+  } catch (e) {
+    if (!box.querySelector("svg")) box.textContent = "Fear & Greed gauge is unavailable right now.";
+  }
+}
+
+loadFng();
+setInterval(loadFng, 30 * 60 * 1000);
 
 $("q").addEventListener("input", e => { query = e.target.value.trim().toLowerCase(); shown = PAGE; renderFeed(); });
 
